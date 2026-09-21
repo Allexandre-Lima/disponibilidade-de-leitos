@@ -135,16 +135,10 @@ const RAW=[
 [98,"UTI 2 - Box 16","2026-08-07","2026-08-07","00:00","2026-08-08","00:00","2026-08-07","Elétrica","Risco de queda da televisão","Amauri"],
 [99,"UTI 2 - Box 13","2026-08-10","2026-08-10","08:00","2026-08-10","11:05","2026-08-10","Hidráulica","Odor muito forte","Amauri"],
 [100,"923","2026-08-15","2026-08-15","00:00","2026-08-15","11:58","2026-08-15","Hidráulica","Manutenção da pia","Amauri"],
-[101,"601","2026-08-17","2026-08-17","00:00","","","","Civil","Parede com grande buraco / drywall danificado","Amauri"],
-[102,"UTI 2 - Box 11","2026-08-20","2026-08-20","00:00","","","","Civil","Manutenção da estativa; rede de vácuo sem funcionamento","Amauri"],
-[103,"923","2026-08-25","2026-08-25","00:00","","","2026-08-26","Ar Condicionado","Vazamento de água (ar-condicionado)","Amauri"],
-[104,"UTI 1 - Box 16","2026-08-25","2026-08-25","17:35","","","2026-08-26","Civil","Conserto do mármore da pia","Amauri"],
 [105,"UTI 1 - Box 19","2026-08-26","2026-08-26","00:00","2026-08-26","21:02","2026-08-26","Elétrica","Problema em tomada elétrica","Amauri"],
 [106,"823","2026-08-29","2026-08-29","00:00","2026-08-29","10:39","2026-08-29","Hidráulica","Chuveiro sem funcionamento","Amauri"],
 [107,"811","2026-08-29","2026-08-29","00:00","2026-08-29","21:35","2026-09-02","Ar Condicionado","Motor do ar-condicionado com defeito (falta de peça)","Amauri"],
 [108,"708","2026-08-30","2026-08-30","00:00","2026-08-30","18:53","2026-08-30","Ar Condicionado","Problema no ar-condicionado (O.S. 6127717)","Amauri"],
-[109,"923","2026-08-31","2026-08-31","00:00","","","","Ar Condicionado","Vazamento do ar-condicionado (recorrência)","Amauri"],
-[110,"601","2026-08-31","2026-08-31","00:00","","","","Civil","Parede quebrada/danificada (recorrência)","Amauri"],
 [111,"616","2026-08-13","2026-08-13","13:52","2026-08-17","17:28","2026-08-18","Civil","Vazamento de água (ralo quebrado) - reparos e pintura","Amauri"]
 ];
 
