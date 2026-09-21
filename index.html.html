@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-tema="claro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Sistema de Controle de Disponibilidade de Leitos — Painel Executivo de Indisponibilidade Hospitalar. VEMAN.">
+<meta name="author" content="VEMAN">
+<meta name="theme-color" content="#0a2a4a">
+<title>Controle de Disponibilidade de Leitos — VEMAN</title>
+
+<!-- Estilos -->
+<link rel="stylesheet" href="styles.css">
+
+<!-- Bibliotecas externas (ordem preservada, defer garante execução pós-DOM) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js" defer></script>
+
+<!-- Aplicação -->
+<script src="app.js" defer></script>
+</head>
+<body>
+<a href="#conteudo" class="skip-link">Pular para o conteúdo</a>
+
+<div class="app-shell" id="shell">
+  <aside class="sidebar">
+    <div class="sidebar-marca">
+      <div class="sidebar-logo">🏥</div>
+      <div class="sidebar-titulo"><strong>Disponibilidade</strong><span>de Leitos</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="sidebar-link" data-page="registros"><span class="sidebar-icone">📋</span><span>Registros</span></button>
+      <button class="sidebar-link ativo" data-page="dashboard"><span class="sidebar-icone">📊</span><span>Dashboard</span></button>
+      <button class="sidebar-link" data-page="relatorios"><span class="sidebar-icone">📄</span><span>Relatórios</span></button>
+      <button class="sidebar-link" data-page="config"><span class="sidebar-icone">⚙️</span><span>Configurações</span></button>
+    </nav>
+    <div class="sidebar-rodape">VEMAN · v1.4</div>
+  </aside>
+
+  <div class="app-principal">
+    <header class="header">
+      <button class="header-btn" id="btn-sidebar" title="Recolher menu">☰</button>
+      <div class="header-info"><span class="header-badge" id="badge-total">0 registros</span></div>
+      <div class="header-acoes">
+        <button class="header-btn" id="btn-tema" title="Alternar tema">☀️</button>
+        <button class="header-btn" id="btn-apres" title="Modo apresentação (F11)">🖥️</button>
+      </div>
+    </header>
+
+    <main id="conteudo" class="app-conteudo">
+      <!-- DASHBOARD -->
+      <section id="page-dashboard" class="page ativo">
+        <div class="page-header">
+          <div class="page-header__bc"><span>Início</span><span>Dashboard</span></div>
+          <div class="page-header__linha">
+            <div>
+              <h1 class="page-header__titulo">Painel Executivo de Indisponibilidade</h1>
+              <p class="page-header__sub" id="sub-dash">—</p>
+            </div>
+          </div>
+        </div>
+        <div class="filtros" data-filtros="dash"></div>
+        <div class="kpi-grid" id="kpi-princ"></div>
+        <div class="kpi-grid compacta" id="kpi-compl"></div>
+        <div class="grid-2">
+          <div class="chart-card"><div class="chart-card__cabecalho"><div><div class="chart-card__titulo">Taxa de liberação</div><div class="chart-card__sub">Leitos devolvidos / total</div></div></div><div class="chart-card__corpo" style="height:240px"><canvas id="ch-gauge"></canvas></div></div>
+          <div class="chart-card"><div class="chart-card__cabecalho"><div><div class="chart-card__titulo">Distribuição por status</div><div class="chart-card__sub" id="sub-status">—</div></div></div><div class="chart-card__corpo" style="height:240px"><canvas id="ch-status"></canvas></div></div>
+        </div>
+        <div class="grid-1">
+          <div class="chart-card"><div class="chart-card__cabecalho"><div><div class="chart-card__titulo">Evolução mensal de bloqueios</div><div class="chart-card__sub">Quantidade por mês</div></div></div><div class="chart-card__corpo" style="height:280px"><canvas id="ch-evolucao"></canvas></div></div>
+        </div>
+        <div class="grid-2">
+          <div class="chart-card"><div class="chart-card__cabecalho"><div><div class="chart-card__titulo">Pareto — Tipos de serviço</div><div class="chart-card__sub" id="sub-pareto">—</div></div></div><div class="chart-card__corpo" style="height:320px"><canvas id="ch-pareto"></canvas></div></div>
+          <div class="chart-card"><div class="chart-card__cabecalho"><div><div class="chart-card__titulo">Top 10 quartos por ocorrências</div></div></div><div class="chart-card__corpo" style="height:320px"><canvas id="ch-topq"></canvas></div></div>
+        </div>
+        <div class="grid-2">
+          <div class="chart-card"><div class="chart-card__cabecalho"><div><div class="chart-card__titulo">Matriz de recorrência × impacto</div><div class="chart-card__sub">X: ocorrências · Y: horas indisponíveis</div></div></div><div class="chart-card__corpo" style="height:340px"><canvas id="ch-matriz"></canvas></div></div>
+          <div class="chart-card"><div class="chart-card__cabecalho"><div><div class="chart-card__titulo">Tempo total de indisponibilidade</div><div class="chart-card__sub">Horas por mês</div></div></div><div class="chart-card__corpo" style="height:340px"><canvas id="ch-tempo"></canvas></div></div>
+        </div>
+        <div class="painel-analise"><h3>📋 Análise Executiva</h3><div id="analise-exec"></div></div>
+        <div class="painel-analise"><h3>🎯 Recomendações</h3><div id="recomendacoes"></div></div>
+        <div class="painel-analise"><h3>💡 Insights</h3><ul class="insight-lista" id="insights"></ul></div>
+      </section>
+
+      <!-- REGISTROS -->
+      <section id="page-registros" class="page">
+        <div class="page-header">
+          <div class="page-header__bc"><span>Início</span><span>Registros</span></div>
+          <div class="page-header__linha">
+            <div>
+              <h1 class="page-header__titulo">Registros de Bloqueio</h1>
+              <p class="page-header__sub" id="sub-reg">—</p>
+            </div>
+            <div class="page-header__acoes">
+              <button class="btn btn-secundario" id="btn-exp">▼ Expandir</button>
+              <button class="btn btn-alerta" id="btn-reset">↺ Resetar</button>
+              <button class="btn btn-primario" id="btn-novo">＋ Novo registro</button>
+            </div>
+          </div>
+        </div>
+        <div class="filtros" data-filtros="reg"></div>
+        <div id="lista-meses"></div>
+      </section>
+
+      <!-- RELATÓRIOS -->
+      <section id="page-relatorios" class="page">
+        <div class="page-header">
+          <div class="page-header__bc"><span>Início</span><span>Relatórios</span></div>
+          <div class="page-header__linha">
+            <div>
+              <h1 class="page-header__titulo">Relatórios Executivos</h1>
+              <p class="page-header__sub" id="sub-rel">Documentos profissionais para apresentação à gestão hospitalar</p>
+            </div>
+          </div>
+        </div>
+        <div class="grid-2" style="max-width:900px">
+          <div class="card" style="border-top:4px solid var(--cp800)">
+            <div class="card__corpo">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+                <span style="font-size:34px">📄</span>
+                <div>
+                  <h3 style="font-size:16px;font-weight:700;color:var(--cp800)">Relatório PDF Executivo</h3>
+                  <span style="font-size:11px;color:var(--tt)">Formato A4 · paisagem para gráficos</span>
+                </div>
+              </div>
+              <p style="font-size:13px;color:var(--tt);line-height:1.55;margin-bottom:14px">
+                Documento visual com capa institucional, KPIs, gráficos, análise crítica e recomendações.
+              </p>
+              <ul style="list-style:none;font-size:12px;color:var(--cp900);display:grid;gap:5px;margin-bottom:16px">
+                <li>· Capa + resumo executivo</li>
+                <li>· 8 KPIs + gráficos embutidos</li>
+                <li>· Pareto + top quartos + recorrências</li>
+                <li>· Análise crítica (7 perguntas)</li>
+              </ul>
+              <button class="btn btn-primario btn-bloco btn-lg" id="btn-pdf">Gerar PDF</button>
+            </div>
+          </div>
+
+          <div class="card rel-card-docx">
+            <div class="card__corpo">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+                <span class="rel-icone-docx">W</span>
+                <div>
+                  <h3 style="font-size:16px;font-weight:700;color:var(--cp800)">Relatório Word (.docx)</h3>
+                  <span style="font-size:11px;color:var(--tt)">Editável · padrão institucional</span>
+                </div>
+              </div>
+              <p style="font-size:13px;color:var(--tt);line-height:1.55;margin-bottom:14px">
+                Documento profissional totalmente editável no Microsoft Word, pronto para apresentação à diretoria e gestão do hospital.
+              </p>
+              <ul style="list-style:none;font-size:12px;color:var(--cp900);display:grid;gap:5px;margin-bottom:16px">
+                <li>· Capa institucional VEMAN</li>
+                <li>· Sumário + tabela de KPIs estilizada</li>
+                <li>· Gráficos embutidos como imagens</li>
+                <li>· Análise executiva + recomendações</li>
+                <li>· Cabeçalho e rodapé em todas as páginas</li>
+              </ul>
+              <button class="btn btn-primario btn-bloco btn-lg" id="btn-word" style="background:#2b579a">Gerar Word</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONFIGURAÇÕES -->
+      <section id="page-config" class="page">
+        <div class="page-header">
+          <div class="page-header__bc"><span>Início</span><span>Configurações</span></div>
+          <div class="page-header__linha">
+            <div><h1 class="page-header__titulo">Configurações</h1><p class="page-header__sub">Parâmetros e cadastros base</p></div>
+            <div class="page-header__acoes">
+              <button class="btn btn-secundario" id="btn-cfg-export">📤 Exportar</button>
+              <button class="btn btn-secundario" id="btn-cfg-import">📥 Importar</button>
+            </div>
+          </div>
+        </div>
+        <div class="tabs" id="cfg-tabs">
+          <button class="tab ativo" data-cfg="param">⚙️ Parâmetros</button>
+          <button class="tab" data-cfg="cadastros">📚 Cadastros</button>
+          <button class="tab" data-cfg="criticidade">⭐ Criticidade</button>
+          <button class="tab" data-cfg="sla">⏱️ SLA</button>
+        </div>
+        <div id="cfg-corpo"></div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="apres-bar" id="apres-bar">
+  <span class="apres-bar__badge"><span class="apres-bar__pulse"></span> Modo Apresentação</span>
+  <span style="font-size:10px;opacity:.7">F11 ou Esc</span>
+  <button class="btn btn-secundario btn-sm" id="btn-sair-apres">✕ Sair</button>
+</div>
+
+<div class="modal-overlay" id="modal-wiz">
+  <div class="modal" style="max-width:800px">
+    <div class="modal__cabecalho">
+      <h3 class="modal__titulo" id="wiz-titulo">Novo registro</h3>
+      <button class="modal__fechar" data-close="wiz">×</button>
+    </div>
+    <div class="modal__corpo">
+      <nav class="wiz-stepper" id="wiz-stepper"></nav>
+      <div id="wiz-erros"></div>
+      <div id="wiz-corpo"></div>
+    </div>
+    <div class="modal__rodape" id="wiz-rodape"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal" style="max-width:460px">
+    <div class="modal__cabecalho">
+      <h3 class="modal__titulo" id="confirm-titulo">Confirmação</h3>
+      <button class="modal__fechar" data-close="confirm">×</button>
+    </div>
+    <div class="modal__corpo"><p id="confirm-msg" style="font-size:14px;line-height:1.6"></p></div>
+    <div class="modal__rodape">
+      <button class="btn btn-secundario" data-close="confirm">Cancelar</button>
+      <button class="btn btn-perigo" id="confirm-ok">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-status">
+  <div class="modal" style="max-width:480px">
+    <div class="modal__cabecalho">
+      <h3 class="modal__titulo" id="status-titulo">Alterar status</h3>
+      <button class="modal__fechar" data-close="status">×</button>
+    </div>
+    <div class="modal__corpo"><div id="status-corpo"></div></div>
+    <div class="modal__rodape">
+      <button class="btn btn-secundario" data-close="status">Cancelar</button>
+      <button class="btn btn-primario" id="status-ok">Aplicar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-obs">
+  <div class="modal" style="max-width:600px">
+    <div class="modal__cabecalho">
+      <h3 class="modal__titulo" id="obs-titulo">Observações</h3>
+      <button class="modal__fechar" data-close="obs">×</button>
+    </div>
+    <div class="modal__corpo">
+      <div class="form-campo"><textarea id="obs-text" rows="6" placeholder="Digite as observações..."></textarea></div>
+    </div>
+    <div class="modal__rodape">
+      <button class="btn btn-secundario" data-close="obs">Cancelar</button>
+      <button class="btn btn-sucesso" id="obs-salvar">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="drawer-overlay" id="drawer-det">
+  <aside class="drawer">
+    <div class="drawer__cabecalho">
+      <div class="drawer__titulo" id="det-titulo">Detalhes</div>
+      <button class="drawer__fechar" data-close="det">×</button>
+    </div>
+    <div class="drawer__corpo" id="det-corpo"></div>
+    <div class="drawer__rodape" id="det-rodape"></div>
+  </aside>
+</div>
+
+<div class="toast-stack" id="toasts"></div>
+</body>
+</html>
