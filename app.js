@@ -1,5 +1,5 @@
 /* ============================================================================
-   Controle de Disponibilidade de Leitos — VEMAN v1.4
+   Controle de Disponibilidade de Leitos — VEMAN v1.4 - 1
    Full-stack SPA (client-side persistence via localStorage)
    ============================================================================
    Estrutura:
